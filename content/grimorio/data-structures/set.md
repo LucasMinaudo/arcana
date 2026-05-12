@@ -1,3 +1,9 @@
+---
+title: 'Conjunto (Set)'
+tags: ['data-structures']
+alias: ['set', 'conjunto']
+---
+
 # Conjunto (Set)
 
 > **Estructura de datos**: colección de elementos únicos y no ordenados, basada en la noción matemática de conjunto.
@@ -47,32 +53,18 @@ Python implementa su `set` con una **tabla hash de direccionamiento abierto**. I
 
 **Diagrama de una tabla hash con 8 slots:**
 
-```
-Índice:   [0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]
-         ┌────┬──────┬────┬──────┬────┬──────┬────┬──────┐
-Slots:   │ -- │ "ab" │ -- │ "xy" │ -- │ "cd" │ -- │ "hi" │
-         └────┴──────┴────┴──────┴────┴──────┴────┴──────┘
-          vacío        vacío        vacío        vacío
+![](/attachments/grimorio/data-structures/hashSet.svg)
 
-hash("ab") % 8 = 1
-hash("xy") % 8 = 3
-hash("cd") % 8 = 5
-hash("hi") % 8 = 7
-```
+`hash("ab") % 8 = 1` | `hash("xy") % 8 = 3` | `hash("cd") % 8 = 5` | `hash("hi") % 8 = 7`
 
-#### TreeSet (árbol Red-Black)
+#### TreeSet (árbol)
 
 Python no incluye un `TreeSet` en su librería estándar; `sortedcontainers.SortedSet` es la alternativa idiomática. Internamente, la garantía de unicidad y orden se logra con un **árbol binario de búsqueda balanceado** con operaciones O(log n) en el peor caso.
 
-**Diagrama de un árbol:**
+**Diagrama de un árbol binario de búsqueda balanceado:**
 
-```
-               [30]
-              /    \
-           [15]     [50]
-          /    \   /    \
-        [10] [20] [40] [60]
-```
+![](/attachments/grimorio/data-structures/.svg)
+
 
 ---
 
@@ -98,16 +90,19 @@ Python no incluye un `TreeSet` en su librería estándar; `sortedcontainers.Sort
 
 ### Tabla de complejidad
 
-| Operación | `set` (promedio) | `set` (peor caso)* | `SortedSet` |
+| Operación | `set` (promedio) | `set` (peor caso) | `SortedSet` |
 |---|:---:|:---:|:---:|
-| `add`, `remove`, `discard`, `in` | O(1) | O(n) | O(log n) |
+| `add`, `remove`, `discard`, `in` | O(1) | O(n)* | O(log n) |
 | `len`, `clear` | O(1) | O(1) | O(1) |
 | `for x in s` | O(n) | O(n) | O(n) |
-| `union`, `intersection`, `difference` | O(\|s\|+\|t\|) | O(\|s\|·\|t\|) | O(\|s\|+\|t\|) |
+| `union` | O(\|s\|+\|t\|) | O(\|s\|·\|t\|) | O(\|s\|+\|t\|)* |
+| `intersection`, `difference` | O(\|s\|+\|t\|) | O(\|s\|·\|t\|) | O(\|s\| log \|t\|) |
 | `issubset` | O(\|s\|) | O(\|s\|·\|t\|) | O(\|s\| log \|t\|) |
 | `min()`, `max()`, rangos | O(n) | O(n) | O(log n) |
 
-> **\*Peor caso O(n):** ocurre con colisiones masivas forzadas artificialmente. Con SipHash, es extremadamente improbable.
+> **\*Peor caso O(n):** ocurre con colisiones masivas forzadas artificialmente. Es extremadamente improbable.
+>
+> **\*Unión O(\|s\|+\|t\|) en SortedSet:** se logra aprovechando que ambos conjuntos están ordenados. La intersección y diferencia, en cambio, buscan cada elemento de `s` en `t`, dando O(\|s\| log \|t\|).
 
 **Complejidad espacial:** Ambas implementaciones requieren **O(n)**. El `set` paga por los slots vacíos de la tabla (capacidad ≈ n / 0.6); el `SortedSet` paga punteros de árbol por nodo.
 
@@ -261,10 +256,12 @@ Considerá usar un `Set` cuando el problema presente alguna de estas caracterís
 |---|---|
 | **HashSet** | Implementación estándar con tabla hash. Sin orden garantizado. |
 | **LinkedHashSet** | Mantiene el orden de inserción de los elementos. |
-| **TreeSet** | Basado en árbol; permite modificar los datos y garantiza orden. |
+| **TreeSet** | Basado en árbol; *permite modificar los datos* y garantiza orden. |
 | **ArraySet** | Para conjuntos de enteros: cada posición del array representa al número. |
 | **Bloom Filter** | Array con varias funciones hash. Muy poca memoria, pero puede dar **falsos positivos**. |
 | **Multiset** | Variante que permite repetidos; funciona como un diccionario `{elemento: frecuencia}`. |
+ 
+> **Cuidado:** Modificar el campo por el cual se ordena un elemento que ya está en el árbol **corrompe la estructura silenciosamente**. El árbol no se re-balancea automáticamente, así que las búsquedas posteriores pueden no encontrar elementos que sí existen. La práctica segura es: eliminar el elemento, modificarlo y reinsertarlo.
 
 ---
 
